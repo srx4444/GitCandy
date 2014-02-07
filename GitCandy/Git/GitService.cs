@@ -169,6 +169,7 @@ namespace GitCandy.Git
                         ? BlobType.MarkDown
                         : BlobType.Text;
                     model.Readme.TextContent = FileHelper.ReadToEnd(data, encoding);
+                    model.Readme.TextBrush = "no-highlight";
                 }
             }
 
@@ -1026,7 +1027,7 @@ namespace GitCandy.Git
             using (var process = System.Diagnostics.Process.Start(info))
             {
                 inStream.CopyTo(process.StandardInput.BaseStream);
-                process.StandardInput.Write('\0');
+                process.StandardInput.Close();
                 process.StandardOutput.BaseStream.CopyTo(outStream);
 
                 process.WaitForExit();
