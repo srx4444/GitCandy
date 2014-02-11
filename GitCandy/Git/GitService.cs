@@ -285,10 +285,14 @@ namespace GitCandy.Git
             if (commit == null)
                 return null;
 
-            if (!string.IsNullOrEmpty(path) && commit[path] == null)
+            var tree = commit[path];
+            if (!string.IsNullOrEmpty(path) && tree == null)
                 return null;
 
-            var commits = GitCache.Get<RevisionSummaryCacheItem[]>((commit.Sha + path).CalcSha(), "commits");
+            var cacheKey = commit.Sha;
+            if (tree != null)
+                cacheKey += "-" + tree.Target.Sha;
+            var commits = GitCache.Get<RevisionSummaryCacheItem[]>(cacheKey, "commits");
             if (commits == null)
             {
                 var ancestors = _repository.Commits
@@ -308,7 +312,7 @@ namespace GitCandy.Git
                     CommitterWhen = s.Committer.When,
                 }).ToArray();
 
-                GitCache.Set((commit.Sha + path).CalcSha(), "commits", commits);
+                GitCache.Set(cacheKey, "commits", commits);
             }
 
             var model = new CommitsModel
