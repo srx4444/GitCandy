@@ -113,7 +113,7 @@ namespace GitCandy.Git
                 scope = new RepositoryScope
                 {
                     Commits = ancestors.Count(),
-                    Contributors = ancestors.GroupBy(s => s.ToString()).Count(),
+                    Contributors = ancestors.GroupBy(s => s.Author.ToString()).Count(),
                 };
                 GitCache.Set(commit.Sha, "scope", scope);
             }
