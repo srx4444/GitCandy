@@ -474,15 +474,18 @@ namespace GitCandy.Git
         {
             var model = new TagsModel
             {
-                Tags = _repository.Tags.Select(s => new TagModel
-                {
-                    ReferenceName = s.Name,
-                    Sha = s.Target.Sha,
-                    When = ((Commit)s.Target).Author.When,
-                    MessageShort = ((Commit)s.Target).MessageShort.RepetitionIfEmpty(NoCommitMessage),
-                })
-                .OrderByDescending(s => s.When)
-                .ToArray()
+                Tags = (from tag in _repository.Tags
+                        let commit = (tag.IsAnnotated ? tag.Annotation.Target : tag.Target) as Commit
+                        where commit != null
+                        select new TagModel
+                        {
+                            ReferenceName = tag.Name,
+                            Sha = tag.Target.Sha,
+                            When = ((Commit)tag.Target).Author.When,
+                            MessageShort = ((Commit)tag.Target).MessageShort.RepetitionIfEmpty(NoCommitMessage),
+                        })
+                        .OrderByDescending(s => s.When)
+                        .ToArray()
             };
             return model;
         }
